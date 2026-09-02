@@ -1,0 +1,798 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+// =====================================================
+// CITIZEN CLASS
+// =====================================================
+
+class Citizen
+{
+private:
+    int citizenId;
+    string name;
+    string phone;
+
+public:
+    // Default constructor
+    Citizen()
+    {
+        citizenId = 0;
+        name = "Unknown";
+        phone = "0000000000";
+    }
+
+    // Parameterized constructor
+    Citizen(int id, string n, string p)
+    {
+        citizenId = id;
+        name = n;
+        phone = p;
+    }
+
+    // Copy constructor
+    Citizen(const Citizen &c)
+    {
+        citizenId = c.citizenId;
+        name = c.name;
+        phone = c.phone;
+    }
+
+    void display()
+    {
+        cout << left << setw(10) << citizenId
+             << setw(20) << name
+             << setw(15) << phone << endl;
+    }
+
+    int getId()
+    {
+        return citizenId;
+    }
+};
+
+
+// =====================================================
+// VIRTUAL BASE CLASS
+// =====================================================
+
+class CivicService
+{
+protected:
+    string teamName;
+    int teamId;
+
+public:
+    CivicService()
+    {
+        teamName = "Unknown";
+        teamId = 0;
+    }
+
+    CivicService(int id, string name)
+    {
+        teamId = id;
+        teamName = name;
+    }
+
+    virtual void respond() = 0;
+
+    virtual void displayTeam()
+    {
+        cout << "Team ID: " << teamId << endl;
+        cout << "Team Name: " << teamName << endl;
+    }
+
+    virtual ~CivicService()
+    {
+    }
+};
+
+
+// =====================================================
+// ABSTRACT RESPONSE TEAM
+// =====================================================
+
+class ResponseTeam : virtual public CivicService
+{
+protected:
+    int workload;
+    int capacity;
+
+public:
+    ResponseTeam()
+    {
+        workload = 0;
+        capacity = 5;
+    }
+
+    ResponseTeam(int id, string name, int cap)
+        : CivicService(id, name)
+    {
+        workload = 0;
+        capacity = cap;
+    }
+
+    virtual void respond() = 0;
+
+    void assignWork()
+    {
+        if (workload < capacity)
+            workload++;
+    }
+
+    int getWorkload()
+    {
+        return workload;
+    }
+
+    int getCapacity()
+    {
+        return capacity;
+    }
+
+    // Operator + : combine workload/capacity values
+    int operator+(const ResponseTeam &r)
+    {
+        return workload + r.workload;
+    }
+
+    void displayTeam()
+    {
+        cout << left << setw(8) << teamId
+             << setw(22) << teamName
+             << setw(12) << workload
+             << setw(10) << capacity << endl;
+    }
+};
+
+
+// =====================================================
+// ROAD TEAM
+// =====================================================
+
+class RoadMaintenanceTeam : public ResponseTeam
+{
+public:
+    RoadMaintenanceTeam(int id, string name, int cap)
+        : CivicService(id, name), ResponseTeam(id, name, cap)
+    {
+    }
+
+    void respond()
+    {
+        cout << "Road Maintenance Team is handling road/pothole complaint."
+             << endl;
+    }
+};
+
+
+// =====================================================
+// SANITATION TEAM
+// =====================================================
+
+class SanitationTeam : public ResponseTeam
+{
+public:
+    SanitationTeam(int id, string name, int cap)
+        : CivicService(id, name), ResponseTeam(id, name, cap)
+    {
+    }
+
+    void respond()
+    {
+        cout << "Sanitation Team is handling garbage complaint."
+             << endl;
+    }
+};
+
+
+// =====================================================
+// ELECTRICAL TEAM
+// =====================================================
+
+class ElectricalTeam : public ResponseTeam
+{
+public:
+    ElectricalTeam(int id, string name, int cap)
+        : CivicService(id, name), ResponseTeam(id, name, cap)
+    {
+    }
+
+    void respond()
+    {
+        cout << "Electrical Team is handling streetlight complaint."
+             << endl;
+    }
+};
+
+
+// =====================================================
+// WATER TEAM
+// =====================================================
+
+class WaterTeam : public ResponseTeam
+{
+public:
+    WaterTeam(int id, string name, int cap)
+        : CivicService(id, name), ResponseTeam(id, name, cap)
+    {
+    }
+
+    void respond()
+    {
+        cout << "Water Team is handling water leakage complaint."
+             << endl;
+    }
+};
+
+
+// =====================================================
+// PUBLIC SAFETY TEAM
+// =====================================================
+
+class PublicSafetyTeam : public ResponseTeam
+{
+public:
+    PublicSafetyTeam(int id, string name, int cap)
+        : CivicService(id, name), ResponseTeam(id, name, cap)
+    {
+    }
+
+    void respond()
+    {
+        cout << "Public Safety Team is handling unsafe public space complaint."
+             << endl;
+    }
+};
+
+
+// =====================================================
+// COMPLAINT CLASS
+// =====================================================
+
+class Complaint
+{
+private:
+    int complaintId;
+    int citizenId;
+    string type;
+    string description;
+    string urgency;
+    string status;
+    int priorityScore;
+    ResponseTeam *assignedTeam;
+
+public:
+
+    // Static members
+    static int totalComplaints;
+    static int activeComplaints;
+
+    // Default constructor
+    Complaint()
+    {
+        complaintId = 0;
+        citizenId = 0;
+        type = "Unknown";
+        description = "";
+        urgency = "Low";
+        status = "Registered";
+        priorityScore = 0;
+        assignedTeam = nullptr;
+    }
+
+    // Parameterized constructor
+    Complaint(int cid, int citizen, string t,
+              string d, string u)
+    {
+        complaintId = cid;
+        citizenId = citizen;
+        type = t;
+        description = d;
+        urgency = u;
+        status = "Registered";
+        priorityScore = 0;
+        assignedTeam = nullptr;
+
+        totalComplaints++;
+        activeComplaints++;
+    }
+
+    // Copy constructor
+    Complaint(const Complaint &c)
+    {
+        complaintId = c.complaintId;
+        citizenId = c.citizenId;
+        type = c.type;
+        description = c.description;
+        urgency = c.urgency;
+        status = c.status;
+        priorityScore = c.priorityScore;
+        assignedTeam = c.assignedTeam;
+    }
+
+    // Destructor
+    ~Complaint()
+    {
+        assignedTeam = nullptr;
+    }
+
+    int getId()
+    {
+        return complaintId;
+    }
+
+    string getType()
+    {
+        return type;
+    }
+
+    string getStatus()
+    {
+        return status;
+    }
+
+    int getScore()
+    {
+        return priorityScore;
+    }
+
+    // Classification
+    void classify()
+    {
+        if (type == "Pothole")
+            cout << "Category: Road Maintenance" << endl;
+        else if (type == "Garbage")
+            cout << "Category: Sanitation" << endl;
+        else if (type == "Streetlight")
+            cout << "Category: Electrical" << endl;
+        else if (type == "Water")
+            cout << "Category: Water Supply" << endl;
+        else if (type == "Unsafe")
+            cout << "Category: Public Safety" << endl;
+        else
+            cout << "Category: General Civic Issue" << endl;
+    }
+
+    // Priority calculation
+    void calculatePriority()
+    {
+        if (urgency == "High")
+            priorityScore = 90;
+        else if (urgency == "Medium")
+            priorityScore = 60;
+        else
+            priorityScore = 30;
+
+        if (type == "Unsafe")
+            priorityScore += 10;
+
+        if (priorityScore > 100)
+            priorityScore = 100;
+    }
+
+    // Assign team
+    void assign(ResponseTeam *team)
+    {
+        assignedTeam = team;
+
+        if (assignedTeam != nullptr)
+        {
+            assignedTeam->assignWork();
+            status = "Assigned";
+
+            cout << "Complaint assigned successfully." << endl;
+            assignedTeam->respond();
+        }
+    }
+
+    // Status update
+    void updateStatus(string newStatus)
+    {
+        if (status != "Resolved" && newStatus == "Resolved")
+        {
+            activeComplaints--;
+
+            if (activeComplaints < 0)
+                activeComplaints = 0;
+        }
+
+        status = newStatus;
+    }
+
+    // Operator > : compare priorities
+    bool operator>(const Complaint &c)
+    {
+        return priorityScore > c.priorityScore;
+    }
+
+    void display()
+    {
+        cout << left
+             << setw(8) << complaintId
+             << setw(10) << citizenId
+             << setw(15) << type
+             << setw(12) << urgency
+             << setw(10) << priorityScore
+             << setw(15) << status
+             << endl;
+    }
+};
+
+
+// Initialize static members
+int Complaint::totalComplaints = 0;
+int Complaint::activeComplaints = 0;
+
+
+// =====================================================
+// MAIN FUNCTION
+// =====================================================
+
+int main()
+{
+    const int MAX = 50;
+
+    Citizen citizens[MAX];
+    Complaint complaints[MAX];
+
+    int citizenCount = 0;
+    int complaintCount = 0;
+
+    // Dynamic objects demonstrating base-class pointers
+    ResponseTeam *teams[5];
+
+    teams[0] = new RoadMaintenanceTeam(
+        1, "Road Maintenance", 5);
+
+    teams[1] = new SanitationTeam(
+        2, "Sanitation", 5);
+
+    teams[2] = new ElectricalTeam(
+        3, "Electrical", 5);
+
+    teams[3] = new WaterTeam(
+        4, "Water Supply", 5);
+
+    teams[4] = new PublicSafetyTeam(
+        5, "Public Safety", 5);
+
+    int choice;
+
+    do
+    {
+        cout << "\n========================================\n";
+        cout << " SMART CIVIC RESPONSE SYSTEM\n";
+        cout << "========================================\n";
+        cout << "1. Register Citizen\n";
+        cout << "2. Register Complaint\n";
+        cout << "3. Display Citizens\n";
+        cout << "4. Display Complaints\n";
+        cout << "5. Assign Complaint\n";
+        cout << "6. Update Complaint Status\n";
+        cout << "7. Compare Complaints\n";
+        cout << "8. Display Team Workload\n";
+        cout << "9. Generate Civic Report\n";
+        cout << "10. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        // ---------------------------------------------
+        // REGISTER CITIZEN
+        // ---------------------------------------------
+
+        if (choice == 1)
+        {
+            int id;
+            string name, phone;
+
+            cout << "Enter Citizen ID: ";
+            cin >> id;
+
+            cout << "Enter Name: ";
+            cin >> ws;
+            getline(cin, name);
+
+            cout << "Enter Phone: ";
+            cin >> phone;
+
+            citizens[citizenCount] =
+                Citizen(id, name, phone);
+
+            citizenCount++;
+
+            cout << "Citizen registered successfully.\n";
+        }
+
+        // ---------------------------------------------
+        // REGISTER COMPLAINT
+        // ---------------------------------------------
+
+        else if (choice == 2)
+        {
+            int id, citizenId;
+            string type, description, urgency;
+
+            if (citizenCount == 0)
+            {
+                cout << "Please register a citizen first.\n";
+                continue;
+            }
+
+            cout << "Enter Complaint ID: ";
+            cin >> id;
+
+            cout << "Enter Citizen ID: ";
+            cin >> citizenId;
+
+            cout << "Enter Complaint Type:\n";
+            cout << "Pothole / Garbage / Streetlight / Water / Unsafe\n";
+            cin >> type;
+
+            cout << "Enter Description: ";
+            cin >> ws;
+            getline(cin, description);
+
+            cout << "Enter Urgency (High/Medium/Low): ";
+            cin >> urgency;
+
+            complaints[complaintCount] =
+                Complaint(id, citizenId, type,
+                          description, urgency);
+
+            complaints[complaintCount].classify();
+            complaints[complaintCount].calculatePriority();
+
+            complaintCount++;
+
+            cout << "Complaint registered successfully.\n";
+        }
+
+        // ---------------------------------------------
+        // DISPLAY CITIZENS
+        // ---------------------------------------------
+
+        else if (choice == 3)
+        {
+            cout << "\nCitizen Details\n";
+
+            cout << left << setw(10) << "ID"
+                 << setw(20) << "Name"
+                 << setw(15) << "Phone" << endl;
+
+            for (int i = 0; i < citizenCount; i++)
+                citizens[i].display();
+        }
+
+        // ---------------------------------------------
+        // DISPLAY COMPLAINTS
+        // ---------------------------------------------
+
+        else if (choice == 4)
+        {
+            cout << "\nComplaint Details\n";
+
+            cout << left
+                 << setw(8) << "ID"
+                 << setw(10) << "Citizen"
+                 << setw(15) << "Type"
+                 << setw(12) << "Urgency"
+                 << setw(10) << "Score"
+                 << setw(15) << "Status"
+                 << endl;
+
+            for (int i = 0; i < complaintCount; i++)
+                complaints[i].display();
+        }
+
+        // ---------------------------------------------
+        // ASSIGN COMPLAINT
+        // ---------------------------------------------
+
+        else if (choice == 5)
+        {
+            int id;
+            cout << "Enter Complaint ID: ";
+            cin >> id;
+
+            bool found = false;
+
+            for (int i = 0; i < complaintCount; i++)
+            {
+                if (complaints[i].getId() == id)
+                {
+                    found = true;
+
+                    if (complaints[i].getType() == "Pothole")
+                        complaints[i].assign(teams[0]);
+
+                    else if (complaints[i].getType() == "Garbage")
+                        complaints[i].assign(teams[1]);
+
+                    else if (complaints[i].getType() == "Streetlight")
+                        complaints[i].assign(teams[2]);
+
+                    else if (complaints[i].getType() == "Water")
+                        complaints[i].assign(teams[3]);
+
+                    else if (complaints[i].getType() == "Unsafe")
+                        complaints[i].assign(teams[4]);
+
+                    else
+                        cout << "No suitable team found.\n";
+
+                    break;
+                }
+            }
+
+            if (!found)
+                cout << "Complaint not found.\n";
+        }
+
+        // ---------------------------------------------
+        // UPDATE STATUS
+        // ---------------------------------------------
+
+        else if (choice == 6)
+        {
+            int id;
+            string status;
+
+            cout << "Enter Complaint ID: ";
+            cin >> id;
+
+            cout << "Enter New Status "
+                 << "(Registered/Assigned/InProgress/Resolved): ";
+            cin >> status;
+
+            bool found = false;
+
+            for (int i = 0; i < complaintCount; i++)
+            {
+                if (complaints[i].getId() == id)
+                {
+                    complaints[i].updateStatus(status);
+                    cout << "Status updated successfully.\n";
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                cout << "Complaint not found.\n";
+        }
+
+        // ---------------------------------------------
+        // COMPARE COMPLAINTS
+        // ---------------------------------------------
+
+        else if (choice == 7)
+        {
+            int id1, id2;
+            int index1 = -1, index2 = -1;
+
+            cout << "Enter first Complaint ID: ";
+            cin >> id1;
+
+            cout << "Enter second Complaint ID: ";
+            cin >> id2;
+
+            for (int i = 0; i < complaintCount; i++)
+            {
+                if (complaints[i].getId() == id1)
+                    index1 = i;
+
+                if (complaints[i].getId() == id2)
+                    index2 = i;
+            }
+
+            if (index1 != -1 && index2 != -1)
+            {
+                if (complaints[index1] > complaints[index2])
+                    cout << "Complaint " << id1
+                         << " has higher priority.\n";
+
+                else if (complaints[index2] > complaints[index1])
+                    cout << "Complaint " << id2
+                         << " has higher priority.\n";
+
+                else
+                    cout << "Both complaints have equal priority.\n";
+            }
+            else
+            {
+                cout << "One or both complaints not found.\n";
+            }
+        }
+
+        // ---------------------------------------------
+        // TEAM WORKLOAD
+        // ---------------------------------------------
+
+        else if (choice == 8)
+        {
+            cout << "\nTeam Workload\n";
+
+            cout << left
+                 << setw(8) << "ID"
+                 << setw(22) << "Team"
+                 << setw(12) << "Workload"
+                 << setw(10) << "Capacity"
+                 << endl;
+
+            for (int i = 0; i < 5; i++)
+                teams[i]->displayTeam();
+
+            int totalWork =
+                *teams[0] + *teams[1];
+
+            cout << "\nCombined workload of first two teams: "
+                 << totalWork << endl;
+        }
+
+        // ---------------------------------------------
+        // CIVIC REPORT
+        // ---------------------------------------------
+
+        else if (choice == 9)
+        {
+            int resolved = 0;
+
+            for (int i = 0; i < complaintCount; i++)
+            {
+                if (complaints[i].getStatus() == "Resolved")
+                    resolved++;
+            }
+
+            cout << "\n====================================\n";
+            cout << " CIVIC RESPONSE REPORT\n";
+            cout << "====================================\n";
+
+            cout << "Total Citizens      : "
+                 << citizenCount << endl;
+
+            cout << "Total Complaints    : "
+                 << Complaint::totalComplaints << endl;
+
+            cout << "Active Complaints   : "
+                 << Complaint::activeComplaints << endl;
+
+            cout << "Resolved Complaints : "
+                 << resolved << endl;
+
+            cout << "\nComplaint Summary:\n";
+
+            for (int i = 0; i < complaintCount; i++)
+                complaints[i].display();
+
+            cout << "\nTeam Summary:\n";
+
+            for (int i = 0; i < 5; i++)
+                teams[i]->displayTeam();
+        }
+
+        // ---------------------------------------------
+        // EXIT
+        // ---------------------------------------------
+
+        else if (choice == 10)
+        {
+            cout << "Exiting Smart Civic Response System...\n";
+        }
+
+        else
+        {
+            cout << "Invalid choice.\n";
+        }
+
+    } while (choice != 10);
+
+
+    // Release dynamically allocated resources
+    for (int i = 0; i < 5; i++)
+        delete teams[i];
+
+    return 0;
+}
